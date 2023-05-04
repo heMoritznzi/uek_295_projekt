@@ -1,6 +1,6 @@
 {
     "type": "project",
-    "name": "heMoritznzi/uek_295_projekt",
+    "name": "hemoritznzi/uek_295_projekt",
     "description": "API zur Notenverwaltung",
     "authors": [
         {
@@ -27,6 +27,7 @@
         "symfony/framework-bundle": "6.2.*",
         "symfony/maker-bundle": "^1.48",
         "symfony/runtime": "6.2.*",
+        "symfony/serializer": "6.2.*",
         "symfony/yaml": "6.2.*"
     },
     "config": {

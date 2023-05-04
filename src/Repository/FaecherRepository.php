@@ -39,6 +39,24 @@ class FaecherRepository extends ServiceEntityRepository
         }
     }
 
+    public function filterAll(FilterFaecher $dtoFilter){
+        $qb = $this->createQueryBuilder("b");
+
+        if($dtoFilter->vorname) {
+            $qb = $qb->andWhere("b.vorname like :vorname")
+                ->setParameter("vorname", $dtoFilter->vorname . "%");
+        }
+
+        if($dtoFilter->nachname) {
+            $qb = $qb->andWhere("b.nachname like :nachname")
+                ->setParameter("nachname", $dtoFilter->nachname . "%");
+        }
+
+        return $qb
+            ->getQuery()
+            ->getResult();
+    }
+
 //    /**
 //     * @return Faecher[] Returns an array of Faecher objects
 //     */

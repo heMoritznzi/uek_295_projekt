@@ -36,7 +36,7 @@ class Faecher
         return $this->Fach;
     }
 
-    public function setFach(string $Fach): self
+    public function setFach(?string $Fach): self
     {
         $this->Fach = $Fach;
 
