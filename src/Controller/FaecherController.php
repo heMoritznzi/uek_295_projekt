@@ -5,11 +5,21 @@ namespace App\Controller;
 use App\DTO\CreateUpdateFaecher;
 use App\DTO\FilterFaecher;
 use App\DTO\Mapper\ShowFaecherMapper;
+use App\DTO\ShowFaecher;
 use App\Entity\Faecher;
 use App\Repository\FaecherRepository;
 use App\Repository\NoteRepository;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use JMS\Serializer\SerializerInterface;
+
+use Nelmio\ApiDocBundle\Annotation\Model;
+use OpenApi\Attributes\Get;
+use OpenApi\Attributes\Items;
+use OpenApi\Attributes\JsonContent;
+use OpenApi\Attributes\Post;
+use OpenApi\Attributes\RequestBody;
+use phpDocumentor\Reflection\DocBlock\Tags\Reference\Reference;
+use phpDocumentor\Reflection\Types\Context;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -26,6 +36,26 @@ class FaecherController extends AbstractController
 
     }
 
+    #[Get(requestBody: new RequestBody(
+        content: new JsonContent(
+            ref: new Model(
+                type: FilterFaecher::class
+            )
+        )
+    ))]
+    #[\OpenApi\Attributes\Response(
+        response: 200,
+        description: "gibt alle faecher inklusive deren noten an",
+        content:
+        new JsonContent(
+            type: 'array',
+            items: new Items(
+                ref: new Model(
+                    type: ShowFaecher::class
+                )
+            )
+        )
+    )]
     #[Rest\Get('/faecher', name: 'app_faecher')]
     public function loadAll(Request $request, FaecherRepository $faecherRepository, FilterFaecher $filterFaecher): JsonResponse
     {
@@ -43,6 +73,19 @@ class FaecherController extends AbstractController
         );
     }
 
+
+
+    #[Post(
+        requestBody: new RequestBody(
+            content: new JsonContent(
+                ref: new Model(
+                    type: CreateUpdateFaecher::class,
+                    groups: ["create"]
+                )
+            )
+        )
+
+    )]
     #[Rest\Post('/faecher', name: 'app_faecher_post')]
     public function create(Request $request) : JsonResponse {
 
