@@ -7,11 +7,13 @@ use App\DTO\FilterFaecher;
 use App\DTO\Mapper\ShowFaecherMapper;
 use App\Entity\Faecher;
 use App\Repository\FaecherRepository;
+use App\Repository\NoteRepository;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use JMS\Serializer\SerializerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -65,20 +67,59 @@ class FaecherController extends AbstractController
     }
 
     #[Rest\Delete('/faecher', name: 'app_faecher_delete')]
-    public function delete() : JsonResponse
+    public function delete($id) : JsonResponse
     {
-        return $this->json(
-            "delete funktioniert"
-        );
+        $entityFach = $this->faecherRepository->find($id);
+        if(!$entityFach) {
+            return $this->json("Story with ID {$id} does not exist!", status: 403);
+        }
+        $this->faecherRepository->remove($entityFach, true);
+        return $this->json("Story with ID " . $id . " Succesfully Deleted");
     }
 
     #[Rest\Put('/faecher', name: 'app_faecher_put')]
-    public function update() : JsonResponse
+    public function update(Request $request, $id) : JsonResponse
     {
-        return  $this->json(
-            "update funktioniert"
+        $dto = $this->serializer->deserialize($request->getContent(), CreateUpdateFaecher::class, "json");
+        $entityfach = $this->faecherRepository->find($id);
+
+        if(!$entityfach) {
+            return $this->json("Fach with ID " . $id . " does not exist! ", status: 403);
+        }
+
+        $entityfach->setFach($dto->fach);
+
+
+        $this->faecherRepository->save($entityfach, true);
+        return $this->json("Fach with ID " . $id . " Succesfully Changed");
+    }
+
+    #[Rest\Get('/faecher/{id}/notenschnitt', name: 'app_faecher_notenschnitt')]
+    public function averageGradeBySubject(Request $request, FaecherRepository $faecherRepository, ?int $id): JsonResponse
+    {
+        $fach = $faecherRepository->find($id);
+
+        if (!$fach) {
+            return (new JsonResponse())->setStatusCode(Response::HTTP_NOT_FOUND);
+        }
+
+        $notes = $fach->getFaecherNote();
+
+        $count = count($notes);
+        $sum = 0;
+        foreach ($notes as $note) {
+            $sum += $note->getNote();
+        }
+        $average = $count > 0 ? $sum / $count : 0;
+
+        return (new JsonResponse())->setContent(
+            $this->serializer->serialize(
+                ['average' => $average], "json"
+            )
         );
     }
+
+
 
     private function validateDto($dtoFach, $groups = ["create"]) {
 

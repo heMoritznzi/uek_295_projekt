@@ -15,49 +15,42 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\DTO\FilterNote;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 
 #[Route("/api", name: "api_")]
 class NotenController extends AbstractFOSRestController
 {
 
-    public function __construct(private SerializerInterface $serializer, private NoteRepository $noteRepository, private FaecherRepository $faecherRepository, private ShowNoteMapper $mapper){
+    public function __construct(private SerializerInterface $serializer, private NoteRepository $noteRepository, private FaecherRepository $faecherRepository, private ShowNoteMapper $mapper, private ValidatorInterface $validator){
 
     }
 
     #[Rest\Get('/noten', name: 'app_noten')]
-    public function index(Request $request, FaecherRepository $faecherRepository, FilterFaecher $filterFaecher): JsonResponse
+    public function index(Request $request, NoteRepository $noteRepository): JsonResponse
     {
-        $dtoFilter = $this->serializer->deserialize(
-            $request->getContent(),
-            FilterNote::class,
-            "json"
-        );
-
-        $notes = $this->noteRepository->filterAll($dtoFilter) ?? [];
-
-        $fach = $this->faecherRepository->find($dtoFilter->fach);
-
-        $count = count($notes);
-        $sum = 0;
-        foreach ($notes as $note) {
-            $sum += $note->getNote($fach);
-        }
-        $average = $count > 0 ? $sum / $count : 0;
+        $noten = $noteRepository->findAll();
 
         return (new JsonResponse())->setContent(
             $this->serializer->serialize(
-                ['average' => $average], "json"
-            )
+                $this->mapper->mapEntitiesToDTOs($noten), "json")
         );
-
-
     }
+
+
 
     #[Rest\Post('/noten', name: 'app_noten_post')]
     public function create(Request $request) : JsonResponse {
 
         $dto = $this->serializer->deserialize($request->getContent(), CreateUpdateNote::class, "json");
+
+
+        $errorResponse = $this->validateDto($dto, ["create"]);
+
+        if ($errorResponse) {
+            return $errorResponse;
+        }
+
 
         $fach = $this->faecherRepository->find($dto->fach);
 
@@ -102,7 +95,21 @@ class NotenController extends AbstractFOSRestController
         return $this->json("Note with ID " . $id . " Succesfully Changed");
     }
 
+    private function validateDto($dto, $groups = ["create"]) {
 
+        $errors = $this->validator->validate($dto, groups: $groups);
+
+        if ($errors->count() > 0){
+            $errorStringArray = [];
+            foreach ($errors as $error){
+                $errorStringArray[] = $error->getMessage();
+            }
+
+            return $this->json($errorStringArray, 400);
+        }
+
+
+    }
 
 
 

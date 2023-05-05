@@ -44,8 +44,8 @@ class FaecherRepository extends ServiceEntityRepository
         $qb = $this->createQueryBuilder("b");
 
         if($dtoFilter->fach) {
-            $qb = $qb->andWhere("b.fach like :p")
-                ->setParameter("fach", $dtoFilter->fach . "%");
+            $qb = $qb->andWhere("b.Fach like :p")
+                ->setParameter("p", $dtoFilter->fach . "%");
         }
 
         return $qb
