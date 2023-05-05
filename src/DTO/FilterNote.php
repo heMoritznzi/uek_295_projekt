@@ -2,11 +2,10 @@
 
 namespace App\DTO;
 
-class CreateUpdateNote
+class FilterNote
 {
-    public ?float $note = null;
+    public ?string $note = null;
 
     public ?int $fach = null;
-
 
 }

@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\DTO\CreateUpdateNote;
+use App\DTO\FilterFaecher;
 use App\DTO\Mapper\ShowNoteMapper;
 use App\Entity\Note;
 use App\Repository\FaecherRepository;
@@ -13,6 +14,8 @@ use JMS\Serializer\SerializerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use App\DTO\FilterNote;
+
 
 #[Route("/api", name: "api_")]
 class NotenController extends AbstractFOSRestController
@@ -23,11 +26,32 @@ class NotenController extends AbstractFOSRestController
     }
 
     #[Rest\Get('/noten', name: 'app_noten')]
-    public function index(): JsonResponse
+    public function index(Request $request, FaecherRepository $faecherRepository, FilterFaecher $filterFaecher): JsonResponse
     {
-        return $this->json(
-            "Get funktioniert"
+        $dtoFilter = $this->serializer->deserialize(
+            $request->getContent(),
+            FilterNote::class,
+            "json"
         );
+
+        $notes = $this->noteRepository->filterAll($dtoFilter) ?? [];
+
+        $fach = $this->faecherRepository->find($dtoFilter->fach);
+
+        $count = count($notes);
+        $sum = 0;
+        foreach ($notes as $note) {
+            $sum += $note->getNote($fach);
+        }
+        $average = $count > 0 ? $sum / $count : 0;
+
+        return (new JsonResponse())->setContent(
+            $this->serializer->serialize(
+                ['average' => $average], "json"
+            )
+        );
+
+
     }
 
     #[Rest\Post('/noten', name: 'app_noten_post')]
@@ -50,21 +74,36 @@ class NotenController extends AbstractFOSRestController
         );
     }
 
-    #[Rest\Delete('/noten', name: 'app_noten_delete')]
-    public function delete() : JsonResponse
+    #[Rest\Delete('/noten/{id}', name: 'app_noten_delete')]
+    public function delete(Request $request, $id) : JsonResponse
     {
-        return $this->json(
-            "delete funktioniert"
-        );
+        $entitynote = $this->noteRepository->find($id);
+        if(!$entitynote) {
+            return $this->json("Story with ID {$id} does not exist!", status: 403);
+        }
+        $this->noteRepository->remove($entitynote, true);
+        return $this->json("Story with ID " . $id . " Succesfully Deleted");
     }
 
-    #[Rest\Put('/noten', name: 'app_noten_put')]
-    public function update() : JsonResponse
+    #[Rest\Put('/noten/{id}', name: 'app_noten_put')]
+    public function update(Request $request, $id) : JsonResponse
     {
-        return  $this->json(
-            "update funktioniert"
-        );
+        $dto = $this->serializer->deserialize($request->getContent(), CreateUpdateNote::class, "json");
+        $entitynote = $this->noteRepository->find($id);
+
+        if(!$entitynote) {
+            return $this->json("note with ID " . $id . " does not exist! ", status: 403);
+        }
+
+        $entitynote->setNote($dto->note);
+
+
+        $this->noteRepository->save($entitynote, true);
+        return $this->json("Note with ID " . $id . " Succesfully Changed");
     }
+
+
+
 
 
 }

@@ -6,4 +6,6 @@ class ShowFaecher
 {
     public ?string $fach = null;
 
+    public $noten = [];
+
 }

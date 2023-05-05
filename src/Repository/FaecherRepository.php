@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\DTO\FilterFaecher;
 use App\Entity\Faecher;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -42,14 +43,9 @@ class FaecherRepository extends ServiceEntityRepository
     public function filterAll(FilterFaecher $dtoFilter){
         $qb = $this->createQueryBuilder("b");
 
-        if($dtoFilter->vorname) {
-            $qb = $qb->andWhere("b.vorname like :vorname")
-                ->setParameter("vorname", $dtoFilter->vorname . "%");
-        }
-
-        if($dtoFilter->nachname) {
-            $qb = $qb->andWhere("b.nachname like :nachname")
-                ->setParameter("nachname", $dtoFilter->nachname . "%");
+        if($dtoFilter->fach) {
+            $qb = $qb->andWhere("b.fach like :p")
+                ->setParameter("fach", $dtoFilter->fach . "%");
         }
 
         return $qb
@@ -82,3 +78,6 @@ class FaecherRepository extends ServiceEntityRepository
 //        ;
 //    }
 }
+
+
+

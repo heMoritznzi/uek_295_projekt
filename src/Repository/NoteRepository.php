@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\DTO\FilterNote;
 use App\Entity\Note;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -37,6 +38,19 @@ class NoteRepository extends ServiceEntityRepository
         if ($flush) {
             $this->getEntityManager()->flush();
         }
+    }
+
+    public function filterAll(FilterNote $dtoFilter){
+        $qb = $this->createQueryBuilder("b");
+
+        if($dtoFilter->note) {
+            $qb = $qb->andWhere("b.fach like :p")
+                ->setParameter("fach", $dtoFilter->note . "%");
+        }
+
+        return $qb
+            ->getQuery()
+            ->getResult();
     }
 
 //    /**
