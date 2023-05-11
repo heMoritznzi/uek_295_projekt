@@ -9,8 +9,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 class CreateUpdateFaecher
 {
 
-    #[Groups(["create"])]
-    #[Assert\NotBlank(message: "Fach darf nicht leer sein", groups: ["create"])]
+    #[Groups(["create", "Update", "Delete"])]
+    #[Assert\NotBlank(message: "Fach darf nicht leer sein", groups: ["create", "Update", "Delete"])]
     public ?string $fach = null;
 
 }

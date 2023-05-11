@@ -13,10 +13,13 @@ use FOS\RestBundle\Controller\Annotations as Rest;
 use JMS\Serializer\SerializerInterface;
 
 use Nelmio\ApiDocBundle\Annotation\Model;
+use OpenApi\Attributes\Delete;
 use OpenApi\Attributes\Get;
 use OpenApi\Attributes\Items;
 use OpenApi\Attributes\JsonContent;
+use OpenApi\Attributes\Parameter;
 use OpenApi\Attributes\Post;
+use OpenApi\Attributes\Put;
 use OpenApi\Attributes\RequestBody;
 use phpDocumentor\Reflection\DocBlock\Tags\Reference\Reference;
 use phpDocumentor\Reflection\Types\Context;
@@ -36,6 +39,14 @@ class FaecherController extends AbstractController
 
     }
 
+
+    /**
+     * gibt alle faecher inklusive deren noten an
+     * @param Request $request
+     * @param FaecherRepository $faecherRepository
+     * @param FilterFaecher $filterFaecher
+     * @return JsonResponse aller faecher
+     */
     #[Get(requestBody: new RequestBody(
         content: new JsonContent(
             ref: new Model(
@@ -57,16 +68,20 @@ class FaecherController extends AbstractController
         )
     )]
     #[Rest\Get('/faecher', name: 'app_faecher')]
+
     public function loadAll(Request $request, FaecherRepository $faecherRepository, FilterFaecher $filterFaecher): JsonResponse
     {
+        // Deserialisierung des Request Body in DTO-Objekt:
         $dtoFilter = $this->serializer->deserialize(
             $request->getContent(),
             FilterFaecher::class,
             "json"
         );
 
+        // Filterung der Fächer anhand des DTO-Objekts:
         $fach = $this->faecherRepository->filterAll($dtoFilter) ?? [];
 
+        // Serialisierung der gefundenen Fächer als JSON-Antwort:
         return (new JsonResponse())->setContent(
             $this->serializer->serialize(
                 $this->mapper->mapEntitiesToDTOs($fach), "json")
@@ -74,7 +89,12 @@ class FaecherController extends AbstractController
     }
 
 
-
+    /**
+     * erstellt neue faecher
+     * @param Request $request
+     * @return JsonResponse mit dem fach und den noten (leeres array)
+     *
+     */
     #[Post(
         requestBody: new RequestBody(
             content: new JsonContent(
@@ -89,65 +109,163 @@ class FaecherController extends AbstractController
     #[Rest\Post('/faecher', name: 'app_faecher_post')]
     public function create(Request $request) : JsonResponse {
 
+        // Deserialisierung des Request Body in DTO-Objekt:
         $dtoFach = $this->serializer->deserialize($request->getContent(), CreateUpdateFaecher::class, "json");
 
+        // Validierung des DTO-Objekts:
         $errorResponse = $this->validateDto($dtoFach, ["create"]);
 
         if ($errorResponse) {
             return $errorResponse;
         }
 
+        // erstellung einer neuen faecher entity
         $entity = new Faecher();
         $entity->setFach($dtoFach->fach);
 
-
+        // speicherung der entity in der datenbank
         $this->faecherRepository->save($entity, true);
 
+
+        // mit dem serializer entity zu json respons serialisieren und ausgeben
         return (new JsonResponse())->setContent(
             $this->serializer->serialize(
                 $this->mapper->mapEntityToDTO($entity), "json")
         );
     }
 
-    #[Rest\Delete('/faecher', name: 'app_faecher_delete')]
+
+    /**
+     * loescht das ausgewaehlte fach
+     * @param $id
+     * @return JsonResponse bestaetigung oder fehler des loeschens
+     */
+    #[\OpenApi\Attributes\Response(
+        response: 200,
+        description: "löscht das ausgewählten fach",
+    )]
+    #[Delete(
+        requestBody: new RequestBody(
+            content: new JsonContent(
+                ref: new Model(
+                    type: CreateUpdateFaecher::class,
+                    groups: ["Delete"]
+                )
+            )
+        )
+
+    )]
+    #[Rest\Delete('/faecher/{id}', name: 'app_faecher_delete')]
     public function delete($id) : JsonResponse
     {
+
+        // Fach mit der gegebenen id suchen
         $entityFach = $this->faecherRepository->find($id);
         if(!$entityFach) {
+            // gibt 403 fehler zurück wenn die id nicht existiert
             return $this->json("Story with ID {$id} does not exist!", status: 403);
         }
+
+        // entity wird von der datenbank gelöscht
         $this->faecherRepository->remove($entityFach, true);
+        // ausgabe einer löschungsbestätigung
         return $this->json("Story with ID " . $id . " Succesfully Deleted");
     }
 
+
+    /**
+     * aendern des ausgewählten fachs
+     * @param Request $request
+     * @param $id
+     * @return JsonResponse bestaetigung oder fehler der aenderung
+     */
+    #[\OpenApi\Attributes\Response(
+        response: 200,
+        description: "ändert das ausgewählte fach",
+    )]
+    #[Put(
+        requestBody: new RequestBody(
+            content: new JsonContent(
+                ref: new Model(
+                    type: CreateUpdateFaecher::class,
+                    groups: ["Update"]
+                )
+            )
+        )
+
+    )]
     #[Rest\Put('/faecher', name: 'app_faecher_put')]
     public function update(Request $request, $id) : JsonResponse
     {
+
+        // deserialize den request body in ein CreateUpdateFaecher object
         $dto = $this->serializer->deserialize($request->getContent(), CreateUpdateFaecher::class, "json");
+
+        // faecher entity mir der gegebenen id finden
         $entityfach = $this->faecherRepository->find($id);
 
+
+
         if(!$entityfach) {
+            // gibt 403 fehler zurück wenn die id nicht existiert
             return $this->json("Fach with ID " . $id . " does not exist! ", status: 403);
         }
 
         $entityfach->setFach($dto->fach);
 
-
+        // Speichere das Entity mit dem neuen Namen.
         $this->faecherRepository->save($entityfach, true);
+
+        // gibt eine bestätigung zurück
         return $this->json("Fach with ID " . $id . " Succesfully Changed");
     }
 
+
+    /**
+     * ausgabe des notenschnitts eines ausgewählen fachs
+     * @param Request $request
+     * @param FaecherRepository $faecherRepository
+     * @param int|null $id
+     * @return JsonResponse des notenschnitts des fachs
+     */
+
+    #[Get(requestBody: new RequestBody(
+        content: new JsonContent(
+            ref: new Model(
+                type: FilterFaecher::class
+            )
+        )
+    ))]
+    #[\OpenApi\Attributes\Response(
+        response: 200,
+        description: "gibt den notenschnitt eines ausgewählten fachs an",
+        content:
+        new JsonContent(
+            type: 'array',
+            items: new Items(
+                ref: new Model(
+                    type: ShowFaecher::class
+                )
+            )
+        )
+    )]
     #[Rest\Get('/faecher/{id}/notenschnitt', name: 'app_faecher_notenschnitt')]
     public function averageGradeBySubject(Request $request, FaecherRepository $faecherRepository, ?int $id): JsonResponse
     {
+        // findet das fach mit gegebener id
         $fach = $faecherRepository->find($id);
 
         if (!$fach) {
+            // wenn das fach mit der gegebenen id nicht gefunden wurde gibt es eine 404-Response zurück
             return (new JsonResponse())->setStatusCode(Response::HTTP_NOT_FOUND);
         }
 
+
+        // Finde alle Noten des Faches.
         $notes = $fach->getFaecherNote();
 
+
+        // Berechne den Notenschnitt.
         $count = count($notes);
         $sum = 0;
         foreach ($notes as $note) {
@@ -155,6 +273,8 @@ class FaecherController extends AbstractController
         }
         $average = $count > 0 ? $sum / $count : 0;
 
+
+        // Gebe den Notenschnitt als JSON zurück.
         return (new JsonResponse())->setContent(
             $this->serializer->serialize(
                 ['average' => $average], "json"
