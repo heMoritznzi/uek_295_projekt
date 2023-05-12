@@ -94,7 +94,7 @@ class FaecherController extends AbstractController
     /**
      * erstellt neue faecher
      * @param Request $request
-     * @return JsonResponse mit dem fach und den noten (leeres array)
+     * @return JsonResponse mit dem fach und den Noten (leeres array)
      *
      */
     #[Post(
