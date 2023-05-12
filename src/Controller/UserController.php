@@ -23,6 +23,7 @@ class UserController extends AbstractController
 
     }
 
+    // Post funktion
     #[Post('/api/user/register', name: 'api_user_register')]
     public function register(Request $request, UserPasswordHasherInterface $passwordHasher): JsonResponse {
 
