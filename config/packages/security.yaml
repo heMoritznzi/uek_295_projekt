@@ -1,7 +1,9 @@
 security:
+    enable_authenticator_manager: true
     # https://symfony.com/doc/current/security.html#registering-the-user-hashing-passwords
     password_hashers:
-        Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'auto'
+        App\Entity\User:
+            algorithm: auto
     # https://symfony.com/doc/current/security.html#loading-the-user-the-user-provider
     providers:
         # used to reload user from session & other features (e.g. switch_user)
@@ -9,25 +11,41 @@ security:
             entity:
                 class: App\Entity\User
                 property: username
+    #       backend_users:
+    #           memory:
+    #               users:
+    #                   base_user: { password: '$2y$13$0nUkRcZraZnd14wMy6jGzONWF2UzC/zhPlcNc8IOneNCdOVjJCBPG', roles: ['ROLE_USER'] } Passwort ist ready123
+    #                   admin_user: { password: '$2y$13$0nUkRcZraZnd14wMy6jGzONWF2UzC/zhPlcNc8IOneNCdOVjJCBPG', roles: ['ROLE_ADMIN', 'ROLE_SUPER_ADMIN'] }
+
     firewalls:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
+        login:
+            pattern: ^/api/login
+            stateless: true
+            json_login:
+                check_path: /api/login_check
+                success_handler: lexik_jwt_authentication.handler.authentication_success
+                failure_handler: lexik_jwt_authentication.handler.authentication_failure
+        api:
+            pattern: ^/api
+            stateless: true
+            jwt: ~
         main:
             lazy: true
             provider: app_user_provider
-
-            # activate different ways to authenticate
-            # https://symfony.com/doc/current/security.html#the-firewall
-
-            # https://symfony.com/doc/current/security/impersonating_user.html
-            # switch_user: true
-
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
-        # - { path: ^/admin, roles: ROLE_ADMIN }
-        # - { path: ^/profile, roles: ROLE_USER }
+        - { path: ^/api/user, roles: PUBLIC_ACCESS }
+        - { path: ^/api/login_check, roles: PUBLIC_ACCESS }
+        - { path: ^/api/docs, roles: PUBLIC_ACCESS }
+        - { path: ^/api/besitzer, roles: ROLE_USER, methods: [GET] }
+        - { path: ^/api/besitzer, roles: ROLE_ADMIN }
+        - { path: ^/api/haustier, roles: ROLE_USER, methods: [GET] }
+        - { path: ^/api/haustier, roles: ROLE_ADMIN }
+
 
 when@test:
     security:
