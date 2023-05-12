@@ -74,11 +74,11 @@ class FaecherController extends AbstractController
     {
         // Deserialisierung des Request Body in DTO-Objekt:
 
-        $dtoFilter = $this->serializer->deserialize(
+        $dtoFilter = $request->getContent() ? $this->serializer->deserialize(
             $request->getContent(),
             FilterFaecher::class,
             "json"
-        );
+        ) : new FilterFaecher();
 
         // Filterung der Fächer anhand des DTO-Objekts:
         $fach = $this->faecherRepository->filterAll($dtoFilter) ?? [];

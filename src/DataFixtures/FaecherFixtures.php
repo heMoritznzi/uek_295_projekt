@@ -15,7 +15,7 @@ class FaecherFixtures extends Fixture
         // $manager->persist($product);
 
         $faecher = new Faecher();
-        $faecher->setFach("gestalten");
+        $faecher->setFach("Sport");
 
 
         $manager->persist($faecher);

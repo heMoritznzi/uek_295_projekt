@@ -106,6 +106,7 @@ class NotenController extends AbstractFOSRestController
         // Validierung des DTO-Objekts:
         $errorResponse = $this->validateDto($dto, ["create"]);
 
+
         if ($errorResponse) {
             return $errorResponse;
         }
