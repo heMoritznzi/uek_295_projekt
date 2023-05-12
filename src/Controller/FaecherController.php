@@ -45,7 +45,6 @@ class FaecherController extends AbstractController
      * gibt alle faecher inklusive deren noten an
      *
      * @param Request $request
-     * @param FaecherRepository $faecherRepository
      * @param FilterFaecher $filterFaecher
      *
      * @return JsonResponse aller faecher
