@@ -63,10 +63,6 @@ class EntitysTest extends WebTestCase
         $this->assertIsArray(json_decode($request->getBody()));
     }
 
-
-
-
-
     public function testCreate()
         {
            $dto = new CreateUpdateFaecher();
@@ -116,7 +112,7 @@ class EntitysTest extends WebTestCase
 
         $dto->note = 4;
 
-        $putrequest = self::$client->request("PUT", "api/noten/2", [
+        $putrequest = self::$client->request("PUT", "api/noten/1", [
 
             "body" => json_encode($dto)
 
@@ -133,6 +129,14 @@ class EntitysTest extends WebTestCase
         $deleterequest = self::$client->request("DELETE", "api/noten/1");
 
         $this->assertTrue($deleterequest->getStatusCode() == 200);
+    }
+
+
+    public function testdurchschnitt(): void {
+        $durchschnittrequest = self::$client->request("GET", "api/faecher/1/notenschnitt");
+
+        $this->assertTrue($durchschnittrequest->getStatusCode() == 200);
+
     }
 
 
