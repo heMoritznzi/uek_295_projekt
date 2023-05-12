@@ -2,7 +2,7 @@
 
 namespace App\DTO;
 
-use phpDocumentor\Reflection\Types\Boolean;
+
 
 class CreateUser
 {
@@ -12,5 +12,5 @@ class CreateUser
     public ?string $passwort = null;
 
 
-    public ?Boolean $is_admin = false;
+    public ?bool $is_admin = false;
 }

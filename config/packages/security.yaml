@@ -41,10 +41,10 @@ security:
         - { path: ^/api/user, roles: PUBLIC_ACCESS }
         - { path: ^/api/login_check, roles: PUBLIC_ACCESS }
         - { path: ^/api/docs, roles: PUBLIC_ACCESS }
-        - { path: ^/api/besitzer, roles: ROLE_USER, methods: [GET] }
-        - { path: ^/api/besitzer, roles: ROLE_ADMIN }
-        - { path: ^/api/haustier, roles: ROLE_USER, methods: [GET] }
-        - { path: ^/api/haustier, roles: ROLE_ADMIN }
+        - { path: ^/api/faecher, roles: ROLE_USER, methods: [GET] }
+        - { path: ^/api/faecher, roles: ROLE_ADMIN }
+        - { path: ^/api/note, roles: ROLE_USER, methods: [GET] }
+        - { path: ^/api/note, roles: ROLE_ADMIN }
 
 
 when@test:
