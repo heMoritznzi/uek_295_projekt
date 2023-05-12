@@ -212,7 +212,7 @@ class NotenController extends AbstractFOSRestController
 
         if(!$entitynote) {
             // gibt 403 fehler zurück wenn die id nicht existiert
-            $this->logger->info("note {note} wurde nicht gefunden", ["fach" => $entitynote->getId()]);
+            $this->logger->info("note {note} wurde nicht gefunden", ["note" => $entitynote->getId()]);
             return $this->json("note with ID " . $id . " does not exist! ", status: 403);
         }
 
@@ -222,7 +222,7 @@ class NotenController extends AbstractFOSRestController
         // Speichere das Entity mit dem neuen Namen.
         $this->noteRepository->save($entitynote, true);
 
-        $this->logger->info("note {note} wurde geändert", ["note" => $entitynote->getFach()]);
+        $this->logger->info("note {note} wurde geändert", ["note" => $entitynote->getNote()]);
 
         // gibt eine bestätigung zurück
         return $this->json("Note with ID " . $id . " Succesfully Changed");

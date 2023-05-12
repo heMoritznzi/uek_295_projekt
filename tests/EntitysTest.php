@@ -114,9 +114,9 @@ class EntitysTest extends WebTestCase
 
         $dto = new CreateUpdateNote();
 
-        $dto->note = 6;
+        $dto->note = 4;
 
-        $putrequest = self::$client->request("PUT", "api/noten/1", [
+        $putrequest = self::$client->request("PUT", "api/noten/2", [
 
             "body" => json_encode($dto)
 
