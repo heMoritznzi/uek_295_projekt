@@ -22,6 +22,7 @@ use OpenApi\Attributes\Post;
 use OpenApi\Attributes\Put;
 use OpenApi\Attributes\RequestBody;
 use OpenApi\Attributes\Response;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -33,7 +34,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 class NotenController extends AbstractFOSRestController
 {
 
-    public function __construct(private SerializerInterface $serializer, private NoteRepository $noteRepository, private FaecherRepository $faecherRepository, private ShowNoteMapper $mapper, private ValidatorInterface $validator){
+    public function __construct(private SerializerInterface $serializer, private NoteRepository $noteRepository, private FaecherRepository $faecherRepository, private ShowNoteMapper $mapper, private ValidatorInterface $validator, private LoggerInterface $logger){
 
     }
 
@@ -70,6 +71,9 @@ class NotenController extends AbstractFOSRestController
 
         // findet alle noten vom notenRepository
         $noten = $noteRepository->findAll();
+
+
+        $this->logger->info("noten wurde ausgegeben");
 
 
         // Serialisierung der gefundenen noten als JSON-Antwort:
@@ -123,6 +127,8 @@ class NotenController extends AbstractFOSRestController
         // speicherung der entity in der datenbank
         $this->noteRepository->save($entity, true);
 
+        $this->logger->info("note {note} wurde erstellt", ["note" => $dto->note]);
+
 
         // mit dem serializer entity zu json respons serialisieren und ausgeben
         return (new JsonResponse())->setContent(
@@ -160,11 +166,14 @@ class NotenController extends AbstractFOSRestController
         $entitynote = $this->noteRepository->find($id);
         if(!$entitynote) {
             // gibt 403 fehler zurück wenn die id nicht existiert
+            $this->logger->info("note {note} wurde nicht gefunden", ["note" => $entitynote->getId()]);
             return $this->json("Story with ID {$id} does not exist!", status: 403);
         }
 
         // entity wird von der datenbank gelöscht
         $this->noteRepository->remove($entitynote, true);
+
+        $this->logger->info("note {note} wurde erfolgreich geloescht", ["note" => $entitynote->getId()]);
 
         // ausgabe einer löschungsbestätigung
         return $this->json("Story with ID " . $id . " Succesfully Deleted");
@@ -203,6 +212,7 @@ class NotenController extends AbstractFOSRestController
 
         if(!$entitynote) {
             // gibt 403 fehler zurück wenn die id nicht existiert
+            $this->logger->info("note {note} wurde nicht gefunden", ["fach" => $entitynote->getId()]);
             return $this->json("note with ID " . $id . " does not exist! ", status: 403);
         }
 
@@ -211,6 +221,8 @@ class NotenController extends AbstractFOSRestController
 
         // Speichere das Entity mit dem neuen Namen.
         $this->noteRepository->save($entitynote, true);
+
+        $this->logger->info("note {note} wurde geändert", ["note" => $entitynote->getFach()]);
 
         // gibt eine bestätigung zurück
         return $this->json("Note with ID " . $id . " Succesfully Changed");
