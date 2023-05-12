@@ -43,37 +43,32 @@ class FaecherController extends AbstractController
 
     /**
      * gibt alle faecher inklusive deren noten an
+     *
      * @param Request $request
      * @param FaecherRepository $faecherRepository
      * @param FilterFaecher $filterFaecher
+     *
      * @return JsonResponse aller faecher
      */
-    #[Get(requestBody: new RequestBody(
-        content: new JsonContent(
-            ref: new Model(
-                type: FilterFaecher::class
-            )
-        )
-    ))]
-    #[\OpenApi\Attributes\Response(
-        response: 200,
-        description: "gibt alle faecher inklusive deren noten an",
-        content:
-        new JsonContent(
-            type: 'array',
-            items: new Items(
-                ref: new Model(
-                    type: ShowFaecher::class
-                )
+    #[Get(
+        requestBody: new RequestBody(
+            content: new JsonContent(
+                ref: new Model(type: FilterFaecher::class)
             )
         )
     )]
+    #[\OpenApi\Attributes\Response(
+        response: 200,
+        description: "gibt alle faecher inklusive deren noten an",
+        content: new JsonContent(
+            type: 'array',
+            items: new Items(ref: new Model(type: ShowFaecher::class))
+        )
+    )]
     #[Rest\Get('/faecher', name: 'app_faecher')]
-
-    public function loadAll(Request $request, FaecherRepository $faecherRepository, FilterFaecher $filterFaecher): JsonResponse
+    public function loadAll(Request $request, FilterFaecher $filterFaecher): JsonResponse
     {
         // Deserialisierung des Request Body in DTO-Objekt:
-
         $dtoFilter = $request->getContent() ? $this->serializer->deserialize(
             $request->getContent(),
             FilterFaecher::class,
@@ -83,16 +78,17 @@ class FaecherController extends AbstractController
         // Filterung der Fächer anhand des DTO-Objekts:
         $fach = $this->faecherRepository->filterAll($dtoFilter) ?? [];
 
-        $this->logger->info("fach {fach} wurde ausgegeben", ["fach" => $dtoFilter->fach]);
+        $this->logger->info(
+            "fach {fach} wurde ausgegeben",
+            ["fach" => $dtoFilter->fach]
+        );
 
         // Serialisierung der gefundenen Fächer als JSON-Antwort:
         return (new JsonResponse())->setContent(
             $this->serializer->serialize(
-                $this->mapper->mapEntitiesToDTOs($fach), "json")
+                $this->mapper->mapEntitiesToDTOs($fach), "json"
+            )
         );
-
-
-
     }
 
 
