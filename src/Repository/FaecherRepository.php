@@ -51,7 +51,7 @@ class FaecherRepository extends ServiceEntityRepository
                 ->setParameter("p", $dtoFilter->fach . "%");
         }
 
-        if ($dtoFilter?->orderby){
+        if ($dtoFilter->orderby){
 
             $qb->orderBy($dtoFilter->orderby, $dtoFilter->orderdirection ?? "ASC");
 

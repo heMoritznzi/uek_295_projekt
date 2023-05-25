@@ -34,10 +34,10 @@ class EntitysTest extends WebTestCase
         self::$application->setAutoExit(false);
 
 
-        self::$application->run(new StringInput("doctrine:database:drop --force"));
-        self::$application->run(new StringInput("doctrine:database:create"));
-        self::$application->run(new StringInput("doctrine:schema:create"));
-        self::$application->run(new StringInput("doctrine:fixtures:load"));
+        self::$application->run(new StringInput("doctrine:database:drop --force --quiet"));
+        self::$application->run(new StringInput("doctrine:database:create --quiet"));
+        self::$application->run(new StringInput("doctrine:schema:create --quiet"));
+        self::$application->run(new StringInput("doctrine:fixtures:load --quiet"));
 
     }
 
@@ -45,7 +45,22 @@ class EntitysTest extends WebTestCase
     public function testLoadAll()
     {
 
-        $request = self::$client->request('GET', 'api/faecher', []);
+        $request = self::$client->request("POST", "api/login_check",
+            [
+                "body" => json_encode([
+                    "username" => "Test",
+                    "password" => "test1234"
+                ])
+            ]);
+
+        $token = json_decode($request->getBody())->token;
+
+        $request = self::$client->request("GET", "api/faecher",
+            [
+                "headers" => [
+                    "Authorization" => "Bearer " . $token
+                ]
+            ]);
 
         $this->assertTrue($request->getStatusCode() == 200);
 
@@ -56,7 +71,23 @@ class EntitysTest extends WebTestCase
     public function testLoadNote()
     {
 
-        $request = self::$client->request('GET', 'api/noten', []);
+        $request = self::$client->request("POST", "api/login_check",
+            [
+                "body" => json_encode([
+                    "username" => "Test",
+                    "password" => "test1234"
+                ])
+            ]);
+
+        $token = json_decode($request->getBody())->token;
+
+        $request = self::$client->request("GET", "api/noten",
+
+            [
+                "headers" => [
+                    "Authorization" => "Bearer " . $token
+                ]
+            ]);
 
         $this->assertTrue($request->getStatusCode() == 200);
 
@@ -68,10 +99,23 @@ class EntitysTest extends WebTestCase
            $dto = new CreateUpdateFaecher();
            $dto->fach = "Sport";
 
-           $request = self::$client->request("POST", "api/faecher",
+           $request = self::$client->request("POST", "api/login_check",
            [
-               "body" => json_encode($dto)
+               "body" => json_encode([
+                   "username" => "Test",
+                   "password" => "test1234"
+               ])
            ]);
+
+           $token = json_decode($request->getBody())->token;
+
+            $request = self::$client->request("POST", "api/faecher",
+                [
+                    "body" => json_encode($dto),
+                    "headers" => [
+                        "Authorization" => "Bearer " . $token
+                    ]
+                ]);
 
 
            $response = json_decode($request->getBody());
@@ -92,9 +136,22 @@ class EntitysTest extends WebTestCase
 
 
 
+        $request = self::$client->request("POST", "api/login_check",
+            [
+                "body" => json_encode([
+                    "username" => "Test",
+                    "password" => "test1234"
+                ])
+            ]);
+
+        $token = json_decode($request->getBody())->token;
+
         $request = self::$client->request("POST", "api/noten",
             [
-                "body" => json_encode($dto)
+                "body" => json_encode($dto),
+                "headers" => [
+                    "Authorization" => "Bearer " . $token
+                ]
             ]);
 
 
@@ -112,30 +169,73 @@ class EntitysTest extends WebTestCase
 
         $dto->note = 4;
 
-        $putrequest = self::$client->request("PUT", "api/noten/1", [
+        $request = self::$client->request("POST", "api/login_check",
+            [
+                "body" => json_encode([
+                    "username" => "Test",
+                    "password" => "test1234"
+                ])
+            ]);
 
-            "body" => json_encode($dto)
+        $token = json_decode($request->getBody())->token;
 
-        ]);
+        $drequest = self::$client->request("PUT", "api/noten/1",
+            [
+                "body" => json_encode($dto),
+                "headers" => [
+                    "Authorization" => "Bearer " . $token
+                ]
+            ]);
 
 
-        $this->assertTrue($putrequest->getStatusCode() == 200);
+        $this->assertTrue($drequest->getStatusCode() == 200);
 
     }
 
 
     public function testdeleteNote(): void {
 
-        $deleterequest = self::$client->request("DELETE", "api/noten/1");
+        $request = self::$client->request("POST", "api/login_check",
+            [
+                "body" => json_encode([
+                    "username" => "Test",
+                    "password" => "test1234"
+                ])
+            ]);
 
-        $this->assertTrue($deleterequest->getStatusCode() == 200);
+        $token = json_decode($request->getBody())->token;
+
+        $drequest = self::$client->request("DELETE", "api/faecher/1",
+            [
+                "headers" => [
+                    "Authorization" => "Bearer " . $token
+                ]
+            ]);
+
+        $this->assertTrue($drequest->getStatusCode() == 200);
     }
 
 
     public function testdurchschnitt(): void {
-        $durchschnittrequest = self::$client->request("GET", "api/faecher/1/notenschnitt");
 
-        $this->assertTrue($durchschnittrequest->getStatusCode() == 200);
+        $request = self::$client->request("POST", "api/login_check",
+            [
+                "body" => json_encode([
+                    "username" => "Test",
+                    "password" => "test1234"
+                ])
+            ]);
+
+        $token = json_decode($request->getBody())->token;
+
+        $drequest = self::$client->request("GET", "api/faecher/2/notenschnitt",
+            [
+                "headers" => [
+                    "Authorization" => "Bearer " . $token
+                ]
+            ]);
+
+        $this->assertTrue($drequest->getStatusCode() == 200);
 
     }
 

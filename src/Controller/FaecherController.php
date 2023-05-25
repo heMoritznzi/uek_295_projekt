@@ -169,7 +169,7 @@ class FaecherController extends AbstractController
         $entityFach = $this->faecherRepository->find($id);
         if(!$entityFach) {
             // gibt 403 fehler zurück wenn die id nicht existiert
-            $this->logger->info("fach {fach} wurde nicht gefunden", ["fach" => $entityFach->getId()]);
+            $this->logger->info("das fach wurde nicht gefunden");
             return $this->json("Story with ID {$id} does not exist!", status: 403);
         }
 
@@ -218,7 +218,7 @@ class FaecherController extends AbstractController
 
         if(!$entityfach) {
             // gibt 403 fehler zurück wenn die id nicht existiert
-            $this->logger->info("fach {fach} wurde nicht gefunden", ["fach" => $entityfach->getId()]);
+            $this->logger->info("das fach wurde nicht gefunden");
             return $this->json("Fach with ID " . $id . " does not exist! ", status: 403);
         }
 
@@ -270,7 +270,7 @@ class FaecherController extends AbstractController
 
         if (!$fach) {
             // wenn das fach mit der gegebenen id nicht gefunden wurde gibt es eine 404-Response zurück
-            $this->logger->info("fach {fach} wurde nicht gefunden", ["fach" => $fach->getId()]);
+            $this->logger->info("das fach wurde nicht gefunden");
             return (new JsonResponse())->setStatusCode(Response::HTTP_NOT_FOUND);
         }
 

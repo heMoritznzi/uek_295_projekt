@@ -127,7 +127,7 @@ class NotenController extends AbstractFOSRestController
         // speicherung der entity in der datenbank
         $this->noteRepository->save($entity, true);
 
-        $this->logger->info("note {note} wurde erstellt", ["note" => $dto->note]);
+        $this->logger->info("die note wurde erstellt", ["note" => $dto->note]);
 
 
         // mit dem serializer entity zu json respons serialisieren und ausgeben
@@ -166,14 +166,14 @@ class NotenController extends AbstractFOSRestController
         $entitynote = $this->noteRepository->find($id);
         if(!$entitynote) {
             // gibt 403 fehler zurück wenn die id nicht existiert
-            $this->logger->info("note {note} wurde nicht gefunden", ["note" => $entitynote->getId()]);
+            $this->logger->info("die note wurde nicht gefunden");
             return $this->json("Story with ID {$id} does not exist!", status: 403);
         }
 
         // entity wird von der datenbank gelöscht
         $this->noteRepository->remove($entitynote, true);
 
-        $this->logger->info("note {note} wurde erfolgreich geloescht", ["note" => $entitynote->getId()]);
+        $this->logger->info("die note wurde erfolgreich geloescht");
 
         // ausgabe einer löschungsbestätigung
         return $this->json("Story with ID " . $id . " Succesfully Deleted");
@@ -212,7 +212,7 @@ class NotenController extends AbstractFOSRestController
 
         if(!$entitynote) {
             // gibt 403 fehler zurück wenn die id nicht existiert
-            $this->logger->info("note {note} wurde nicht gefunden", ["note" => $entitynote->getId()]);
+            $this->logger->info("die note wurde nicht gefunden");
             return $this->json("note with ID " . $id . " does not exist! ", status: 403);
         }
 
@@ -222,7 +222,7 @@ class NotenController extends AbstractFOSRestController
         // Speichere das Entity mit dem neuen Namen.
         $this->noteRepository->save($entitynote, true);
 
-        $this->logger->info("note {note} wurde geändert", ["note" => $entitynote->getNote()]);
+        $this->logger->info("die note wurde geändert");
 
         // gibt eine bestätigung zurück
         return $this->json("Note with ID " . $id . " Succesfully Changed");

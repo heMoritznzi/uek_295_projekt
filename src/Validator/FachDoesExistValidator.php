@@ -14,13 +14,16 @@ class FachDoesExistValidator extends ConstraintValidator
 
     }
 
+
     public function validate($fach, Constraint $constraint) : void
     {
         $faecher = $this->faecherRepository->find($fach);
 
+        $message = $constraint->__get("message");
+
         if (!$faecher) {
            $this->context
-               ->buildViolation($constraint->message)
+               ->buildViolation($message)
                ->setParameter("{{ fach }}", $fach)
                ->addViolation();
 
