@@ -25,7 +25,6 @@ class Note
         return $this->id;
     }
 
-
     public function getNote(): ?float
     {
         return $this->Note;
@@ -49,11 +48,4 @@ class Note
 
         return $this;
     }
-
-
-
-
-
-
-
 }

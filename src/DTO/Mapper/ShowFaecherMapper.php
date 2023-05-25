@@ -2,7 +2,6 @@
 
 namespace App\DTO\Mapper;
 
-
 use App\DTO\ShowFaecher;
 
 class ShowFaecherMapper extends BaseMapper
@@ -12,7 +11,7 @@ class ShowFaecherMapper extends BaseMapper
         $dto = new ShowFaecher();
 
         $dto->fach = $entity->getFach();
-        foreach($entity->getFaecherNote() as $note) {
+        foreach ($entity->getFaecherNote() as $note) {
             $dto->noten[] = $note->getNote();
         }
 

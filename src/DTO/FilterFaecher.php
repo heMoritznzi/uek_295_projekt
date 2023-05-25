@@ -4,13 +4,9 @@ namespace App\DTO;
 
 class FilterFaecher
 {
-   public ?string $fach = null;
+    public ?string $fach = null;
 
+    public ?string $orderby = null;
 
-   public ?string $orderby = null;
-
-   public ?string $orderdirection = null;
-
+    public ?string $orderdirection = null;
 }
-
-

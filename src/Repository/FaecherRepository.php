@@ -41,22 +41,20 @@ class FaecherRepository extends ServiceEntityRepository
         }
     }
 
-    public function filterAll(FilterFaecher $dtoFilter){
-        $this->logger->info("Filtermethode für faecher aufgerufen");
-        $qb = $this->createQueryBuilder("b");
+    public function filterAll(FilterFaecher $dtoFilter)
+    {
+        $this->logger->info('Filtermethode für faecher aufgerufen');
+        $qb = $this->createQueryBuilder('b');
 
-        if($dtoFilter->fach) {
-            $this->logger->info("Filter faecher: {fach}", ["fach" => $dtoFilter->fach]);
-            $qb = $qb->andWhere("b.Fach like :p")
-                ->setParameter("p", $dtoFilter->fach . "%");
+        if ($dtoFilter->fach) {
+            $this->logger->info('Filter faecher: {fach}', ['fach' => $dtoFilter->fach]);
+            $qb = $qb->andWhere('b.Fach like :p')
+                ->setParameter('p', $dtoFilter->fach.'%');
         }
 
-        if ($dtoFilter->orderby){
-
-            $qb->orderBy($dtoFilter->orderby, $dtoFilter->orderdirection ?? "ASC");
-
+        if ($dtoFilter->orderby) {
+            $qb->orderBy($dtoFilter->orderby, $dtoFilter->orderdirection ?? 'ASC');
         }
-
 
         return $qb
             ->getQuery()
@@ -88,6 +86,3 @@ class FaecherRepository extends ServiceEntityRepository
 //        ;
 //    }
 }
-
-
-

@@ -40,12 +40,13 @@ class NoteRepository extends ServiceEntityRepository
         }
     }
 
-    public function filterAll(FilterNote $dtoFilter){
-        $qb = $this->createQueryBuilder("b");
+    public function filterAll(FilterNote $dtoFilter)
+    {
+        $qb = $this->createQueryBuilder('b');
 
-        if($dtoFilter->note) {
-            $qb = $qb->andWhere("b.fach like :p")
-                ->setParameter("fach", $dtoFilter->note . "%");
+        if ($dtoFilter->note) {
+            $qb = $qb->andWhere('b.fach like :p')
+                ->setParameter('fach', $dtoFilter->note.'%');
         }
 
         return $qb

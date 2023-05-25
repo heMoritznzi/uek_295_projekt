@@ -2,8 +2,6 @@
 
 namespace App\DTO\Mapper;
 
-
-
 use App\DTO\ShowNote;
 
 class ShowNoteMapper extends BaseMapper
